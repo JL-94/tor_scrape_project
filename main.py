@@ -10,26 +10,36 @@ def get_ip():
     return pub_ip
 
 def tor_check():
-    # Runs a http request through the TOR network, and returns the public IP address of the TOR exit node used. 
+    # Runs a test http request through the TOR network, and returns the public IP address of the TOR exit node used. 
     # TOR network is slow and can be temperamental, be patient if it does not work first time. 
 
     url = "https://v4.ident.me"
-
     with tor_requests_session() as tor:
-        res = tor.get(url)
-
+        try:
+            res = tor.get(url)
+        except:
+            print('Something went wrong with the http request.')
     data = bs4.BeautifulSoup(res.text, "lxml")
     tag = data.select('body')
     exit_node = tag[0].get_text()
-    print('Using TOR exit node: ' + exit_node)
-
     return exit_node
+
+def scrape():
+    # Self explanatory, runs a scraping task against targets specified in the url variable.
+    url = ''
+    with tor_requests_session() as tor:
+        res = tor.get(url)
+    pass
 
 def main():
     pub_ip = get_ip()
-    print('Your source public IP is: ' + pub_ip)
-    print('This will be hidden.')
-    tor_check()
+    exit_node = tor_check()
+    if pub_ip == exit_node:
+        print('TOR inactive. Ending scrape.')
+        exit()
+    elif pub_ip != exit_node:
+        print('TOR active. Your IP address will be hidden.')
+        print('Using TOR exit node: ' + exit_node)
 
 if __name__ == "__main__":
     main()
