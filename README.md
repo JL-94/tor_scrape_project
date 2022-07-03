@@ -5,5 +5,6 @@
 This script can be used to scrape sites via the TOR network. The TOR network is inherently slow, however it does provide anonymity which can be useful whilst web scraping. 
 
 Requirements
+
 pip install torpy
 pip install bs4
