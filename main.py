@@ -26,10 +26,13 @@ def tor_check():
 
 def scrape():
     # Self explanatory, runs a scraping task against targets specified in the url variable.
-    url = ''
+    url = 'http://www.jamielawson94.wixsite.com/blaggr/forum'
     with tor_requests_session() as tor:
         res = tor.get(url)
-    pass
+    data = bs4.BeautifulSoup(res.text, "lxml")
+    tag = data.select('body')
+    post = tag[0].get_text
+    print(post)
 
 def main():
     pub_ip = get_ip()
@@ -40,6 +43,7 @@ def main():
     elif pub_ip != exit_node:
         print('TOR active. Your IP address will be hidden.')
         print('Using TOR exit node: ' + exit_node)
+        scrape()
 
 if __name__ == "__main__":
     main()
