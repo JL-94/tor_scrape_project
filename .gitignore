@@ -128,5 +128,6 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# txt files
+# txt / csv files
 search_terms.txt
+search_results.csv
