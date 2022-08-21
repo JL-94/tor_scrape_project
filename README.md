@@ -5,6 +5,8 @@
 This script can be used to return the amount of jobs associated with certain keywords on uk.indeed.com.
 
 Requirements:
+Make sure pip3 is installed.
+
 pip install torpy
 pip install bs4
 

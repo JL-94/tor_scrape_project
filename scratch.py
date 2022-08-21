@@ -2,9 +2,14 @@ import time
 from datetime import timedelta
 import re
 from bs4 import BeautifulSoup
+from requests import RequestException
 from torpy.http.requests import TorRequests
 import random
 import logging
+from http.client import IncompleteRead
+
+#CC: I add the "requests" import below to enable line 46 to work
+import requests
 
 #Logging configuration settings.
 logging.basicConfig(filename='scrape.log', filemode='w', level=logging.INFO, format = '%(asctime)s - %(name) s - %(levelname) s - %(message) s')
@@ -24,40 +29,38 @@ def scrape():
     retries = 1
 
     logging.info('Building TOR Circuit...')
-
-    # construct a tor circuit with the 'with' statement.
     with TorRequests() as tor:
         with tor.get_session() as sess:
             #Loop through all search terms
             for searchTerm in readFile:
                 print(searchTerm)
-
-                #Initiate a while loop as part of error handling process.
+                #Contstruct the destination url including the specified searchTerm
+                #res = requests.get('https://uk.indeed.com/jobs?q=%27' + searchTerm + '%27&l=')
                 while True:
                     try:
                         logging.info('Sending request...')
+                        
+                        #CC: The original line is below
+                        #res = requests.get("https://uk.indeed.com/jobs?q='" + searchTerm + "'&l=")
+                        
+                        #CC: The modified version of line 41 is entered on line 46
+                        #CC: The term "sess" was changed to "requests"
+                        #CC: It also includes a browser agent entry at the end.
+                        res = sess.get("https://uk.indeed.com/jobs?q='" + searchTerm + "'&l=", headers={'User-Agent': 'Mozilla/5.0 (X11; Linux x86_64; rv:93.0) Gecko/20100101 Firefox/93.0', 'Referer': 'https://google.co.uk'})
 
-                        #Construct a user-agent string.
-                        headers = {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.0.0 Safari/537.36'}
-
-                        #Contstruct the destination url including the specified searchTerm.
-                        res = sess.get("https://uk.indeed.com/jobs?q='" + searchTerm + "'&l=", headers=headers)
-
-                    # Raised exception will lead to a new tor circuit being constructed, leading to effective IP rotation.
-                    except (Exception) as e:
-
-                        # Program will wait for an increased amount of time every time an error occurs.
+                    except (RequestException, IndexError) as e:
                         wait = retries + 5
                         print('Error, waiting %s seconds before retrying...' %wait)
                         logging.info('Error, waiting %s seconds before retrying...' %wait)
                         time.sleep(wait)
                         retries += 1
                         logging.info('Building new TOR Circuit...')
-
-                        # Forcefully close the requests session and create a new one, then continue scraping. 
                         sess.close()
                         with tor.get_session() as sess:
                             continue
+
+                    except IncompleteRead as ir:
+                        continue
                     break                
                 
                 print(res)
