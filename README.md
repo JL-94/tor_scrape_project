@@ -12,7 +12,11 @@ Make sure pip3 is installed.
 pip install torpy
 pip install bs4
 
+Input: 
+Data is read from search_terms.txt. Add or remove terms as needed.
+
 Logging:
 This script will create a log file inside the project directory. The default name for this file is scrape.log. It will display info regarding the TOR nodes that the requests are sent through.
 
+Results:
 search_results.csv will populate when script is run. 
